@@ -33,9 +33,9 @@ Make sure to run this script and keep the terminal open around the time of the s
 
 ## Note
 
-The purpose of building PS5bot is:
+PS5bot exists to:
 
-- to practice web scraping and
-- to buy a PS5 for myself  
-The second pointer is fair imo since it's pretty much an automated version of constantly clicking refresh to buy shit.  
-Also: This is not intended to scalp massive quantities of PS5s. That's not cool.
+- practice web scraping and to
+- buy a PS5 for myself  
+The second point is fair imo since it's pretty much an automated version of constantly clicking refresh to buy stuff.  
+Also: This is not intended to scalp massive quantities of PS5s. That shit aint cool.

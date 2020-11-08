@@ -95,7 +95,7 @@ export const scrape = async (config: { [key: string]: string }) => {
         'input[name="accountHolderName"]',
         `${firstName} ${lastName}`
       )
-      page.mouse.click(360, 609)
+      await page.mouse.click(360, 609)
       await page.keyboard.type(creditCardNumber)
     })
     await page.waitForTimeout(4000)

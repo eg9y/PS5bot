@@ -4,8 +4,8 @@ import { GluegunCommand } from 'gluegun'
 const command: GluegunCommand = {
   name: 'ps5bot',
   run: async toolbox => {
-    const snakeCaseToSpaceSeparatedWord = (propertyName: string) => {
-      return propertyName
+    const snakeCaseToSpaceSeparatedWord = (cronScheduleName: string) => {
+      return cronScheduleName
         .replace(/([A-Z])/g, ' $1')
         .replace(/^./, function(str) {
           return str.toUpperCase()
@@ -13,23 +13,25 @@ const command: GluegunCommand = {
         .toLowerCase()
     }
 
-    const input = async (propertyName: string) => {
-      const convertedPropertyName = snakeCaseToSpaceSeparatedWord(propertyName)
+    const input = async (cronScheduleName: string) => {
+      const convertedcronScheduleName = snakeCaseToSpaceSeparatedWord(
+        cronScheduleName
+      )
       const result = await prompt.ask({
         type: 'input',
-        name: propertyName,
-        message: `Enter your ${convertedPropertyName}`
+        name: cronScheduleName,
+        message: `Enter your ${convertedcronScheduleName}.`
       })
-      let property: string
-      if (result && result[propertyName]) {
-        property = result[propertyName]
+      let cronSchedule: string
+      if (result && result[cronScheduleName]) {
+        cronSchedule = result[cronScheduleName]
       }
       // if they didn't provide one, we error out
-      if (!property) {
-        print.error(`No ${convertedPropertyName} name specified!`)
+      if (!cronSchedule) {
+        print.error(`No ${convertedcronScheduleName} name specified!`)
         return
       }
-      return property
+      return cronSchedule
     }
 
     const { prompt, print } = toolbox
@@ -38,6 +40,15 @@ const command: GluegunCommand = {
     All data will only be stored in your computer. 
     You can choose to fill out the configs in config.json based on template provided in configTemplate.json.
     `)
+
+    const { scheduleOption } = await prompt.ask({
+      type: 'select',
+      name: 'scheduleOption',
+      message: `Do you want to run ps5bot immediately, or in a specific time and date?`,
+      choices: ['immediate', 'later']
+    })
+    const isSchedule = scheduleOption === 'later'
+
     const firstName = await input('firstName')
     const lastName = await input('lastName')
     const phoneNumber = await input('phoneNumber')
@@ -50,6 +61,19 @@ const command: GluegunCommand = {
     const expirationMonth = await input('expirationMonth')
     const expirationYear = await input('expirationYear')
     const cvv = await input('cvv')
+
+    let cronSchedule = null
+    if (isSchedule) {
+      const result = await prompt.ask({
+        type: 'input',
+        name: 'cronSchedule',
+        message: `Enter the schedule to run ps5bot. This field is optional and will run immediately as default. Schedule should be in cron format. Check this out: https://crontab-generator.org/`
+      })
+      if (result && result['cronSchedule']) {
+        cronSchedule = result['cronSchedule']
+      }
+    }
+
     const config = {
       firstName,
       lastName,
@@ -62,7 +86,8 @@ const command: GluegunCommand = {
       creditCardNumber,
       expirationMonth,
       expirationYear,
-      cvv
+      cvv,
+      cronSchedule
     }
     fs.writeFileSync('config.json', JSON.stringify(config, null, 4))
   }

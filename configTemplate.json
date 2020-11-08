@@ -10,5 +10,6 @@
     "creditCardNumber": "",
     "expirationMonth": "MM format like 01 or 12",
     "expirationYear": "YYYY format like 2019",
-    "cvv": "credit card CVV/security code. Usually 3-4 letters"
+    "cvv": "credit card CVV/security code. Usually 3-4 letters",
+    "cronjobSchedule": "schedule to run the bot. In crontab format. e.g. * 1 * * *"
 }

@@ -1,4 +1,5 @@
 import { GluegunToolbox } from 'gluegun'
+import * as puppeteer from 'puppeteer'
 import { PLAYSTATION_DIRECT, TARGET } from '../contants'
 
 module.exports = {
@@ -16,10 +17,22 @@ module.exports = {
       choices: [PLAYSTATION_DIRECT, TARGET]
     })
 
-    if (sitesToScrape.length && sitesToScrape.includes(TARGET)) {
-      await scrape(TARGET)
+    if (sitesToScrape.length === 0 && ) {
+      const browser = await puppeteer.launch({
+        headless: false,
+        args: ['--window-size=1920,1080'],
+        defaultViewport: null
+      })
+      await Promise.allSettled([
+        scrape(TARGET, browser),
+        scrape(PLAYSTATION_DIRECT, browser)
+      ])
     } else {
-      await scrape(PLAYSTATION_DIRECT)
+      if (sitesToScrape.length && sitesToScrape.includes(TARGET)) {
+        await scrape(TARGET)
+      } else {
+        await scrape(PLAYSTATION_DIRECT)
+      }
     }
   }
 }

@@ -1,6 +1,9 @@
 import * as puppeteer from 'puppeteer'
 
-export const scrape = async (config: { [key: string]: string }) => {
+export const scrape = async (
+  config: { [key: string]: string },
+  existingBrowser?: puppeteer.Browser | null
+) => {
   const {
     email,
     phoneNumber,
@@ -15,11 +18,18 @@ export const scrape = async (config: { [key: string]: string }) => {
     expirationYear,
     cvv
   } = config
-  const browser = await puppeteer.launch({
-    headless: false,
-    args: ['--window-size=1920,1080'],
-    defaultViewport: null
-  })
+
+  let browser
+  if (existingBrowser) {
+    browser = existingBrowser
+  } else {
+    browser = await puppeteer.launch({
+      headless: false,
+      args: ['--window-size=1920,1080'],
+      defaultViewport: null
+    })
+  }
+
   try {
     const page = await browser.newPage()
     await page.goto(
@@ -29,13 +39,13 @@ export const scrape = async (config: { [key: string]: string }) => {
 
     const productHero = await page.$('.productHero-desc')
     const shipItButton = await productHero.$('button[aria-label="Add to Cart"]')
-    shipItButton.click()
+    await shipItButton.click()
 
     await page.waitForTimeout(2000)
     const [editAndCheckout] = await page.$x(
       "//a[contains(., 'Edit and Checkout')]"
     )
-    editAndCheckout.click()
+    await editAndCheckout.click()
 
     await page.waitForTimeout(2000)
 
@@ -45,14 +55,14 @@ export const scrape = async (config: { [key: string]: string }) => {
 
     await page.waitForTimeout(2000)
     const [verifyAgeButton] = await page.$x("//button[contains(., 'Verify')]")
-    verifyAgeButton.click()
+    await verifyAgeButton.click()
 
     await page.waitForTimeout(2000)
 
     const [nextFromCartToShipping] = await page.$x(
       "//button[contains(., 'Next')]"
     )
-    nextFromCartToShipping.click()
+    await nextFromCartToShipping.click()
 
     await page.waitForTimeout(2000)
     await page.type('input[name="email"]', email)
@@ -71,7 +81,7 @@ export const scrape = async (config: { [key: string]: string }) => {
     await page.type('#phoneNoInput', phoneNumber)
 
     const x = await page.$('#stateDropdown')
-    x.click()
+    await x.click()
     await page.waitForTimeout(4000)
     await page.keyboard.press('Enter') // Enter Key
     await page.evaluate(stateArg => {
@@ -84,10 +94,10 @@ export const scrape = async (config: { [key: string]: string }) => {
     const shippingToCheckout = await page.$(
       '.order-summary-container__cta>.checkout-cta>.checkout-cta__next'
     )
-    shippingToCheckout.click()
+    await shippingToCheckout.click()
 
     await page.waitForTimeout(6000)
-    await page.frames().find(async frame => {
+    page.frames().find(async frame => {
       await frame.type('input[name="expiryMonth"]', expirationMonth)
       await frame.type('input[name="expiryYear"]', expirationYear)
       await frame.type('input[name="cvv"]', cvv)
@@ -102,7 +112,7 @@ export const scrape = async (config: { [key: string]: string }) => {
     const checkOutToReview = await page.$(
       '.order-summary-container__cta>.checkout-cta>.checkout-cta__review-order-total'
     )
-    checkOutToReview.click()
+    await checkOutToReview.click()
 
     // // Place Order
     // const LETS_GOGOGO = await page.$(

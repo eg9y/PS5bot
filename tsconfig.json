@@ -5,10 +5,10 @@
     "lib": [
       "es2015",
       "scripthost",
-      "es2015.promise",
       "es2015.generator",
       "es2015.iterable",
-      "dom"
+      "dom",
+            "ES2020.Promise",
     ],
     "module": "commonjs",
     "moduleResolution": "node",

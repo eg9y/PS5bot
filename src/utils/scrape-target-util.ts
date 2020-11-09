@@ -1,49 +1,145 @@
 import * as puppeteer from 'puppeteer'
 
-export const scrapeTarget = async (config: { [key: string]: string }) => {
-  // const {
-  //   email,
-  //   phoneNumber,
-  //   firstName,
-  //   lastName,
-  //   state,
-  //   city,
-  //   zipCode,
-  //   address,
-  //   creditCardNumber,
-  //   expirationMonth,
-  //   expirationYear,
-  //   cvv
-  // } = config
+export const scrapeTarget = async (
+  config: { [key: string]: string },
+  existingBrowser?: puppeteer.Browser | null
+) => {
+  const {
+    phoneNumber,
+    firstName,
+    lastName,
+    state,
+    city,
+    zipCode,
+    address,
+    creditCardNumber,
+    expirationMonth,
+    expirationYear,
+    cvv,
+    targetEmail,
+    targetPassword
+  } = config
 
-  // const targetAccountPassword = 'randompassword!!!'
+  if (!targetEmail || !targetPassword) {
+    throw new Error(
+      'targetEmail and targetPassword settings not set in config.json'
+    )
+  }
 
-  const browser = await puppeteer.launch({
-    headless: false,
-    args: ['--window-size=1920,1080'],
-    defaultViewport: null
-  })
+  let browser
+  if (existingBrowser) {
+    browser = existingBrowser
+  } else {
+    browser = await puppeteer.launch({
+      headless: false,
+      args: ['--window-size=1920,1080'],
+      defaultViewport: null
+    })
+  }
+
   try {
     const page = await browser.newPage()
+    await page.setRequestInterception(true)
+
+    page.on('request', async req => {
+      if (req.resourceType() === 'image') {
+        await req.abort()
+      } else {
+        await req.continue()
+      }
+    })
+
     await page.goto(
       'https://www.target.com/p/dualsense-wireless-controller-for-playstation-5/-/A-81114477'
     )
 
+    await page.waitForTimeout(2000)
     const shipItButton = await page.$('button[data-test="shipItButton"]')
-    shipItButton.click()
+    await shipItButton.click()
     await page.waitForTimeout(2000)
 
     const noCoverageButton = await page.$(
       'button[data-test="espModalContent-declineCoverageButton"]'
     )
-    noCoverageButton.click()
+    await noCoverageButton.click()
 
-    // const [editAndCheckout] = await page.$x(
-    //   "//a[contains(., 'Edit and Checkout')]"
+    await page.waitForTimeout(2000)
+    const addToCartModalViewCartCheckout = await page.$(
+      'button[data-test="addToCartModalViewCartCheckout"]'
+    )
+    await addToCartModalViewCartCheckout.click()
+
+    await page.waitForTimeout(6000)
+    const checkoutButton = await page.$('button[data-test="checkout-button"]')
+    await checkoutButton.click()
+
+    await page.waitForTimeout(6000)
+    await page.type('#username', targetEmail)
+    await page.type('#password', targetPassword)
+    await page.keyboard.press('Enter')
+
+    await page.waitForTimeout(6000)
+    const isJoinRequest = await page.$('#circle-join-free')
+    if (isJoinRequest) {
+      console.log('join request exists')
+      const skipButton = await page.$('#circle-skip')
+      await skipButton.click()
+    } else {
+      console.log("join request doesn't exists")
+    }
+
+    // checkout page
+    const existingAddress = await page.$('div[data-test="address-0"]')
+    if (existingAddress) {
+      console.log('address exists')
+      await existingAddress.click()
+      const saveAndContinueButton = await page.$(
+        'button[data-test="save-and-continue-button"]'
+      )
+      await saveAndContinueButton.click()
+    } else {
+      console.log("address doesn't exists")
+      await page.type('#full_name', `${firstName} ${lastName}`)
+      await page.type('#address_line1', address)
+      await page.type('#zip_code', zipCode)
+      await page.type('#city', city)
+      await page.type('#mobile', phoneNumber)
+      await page.select('#state', state)
+      const saveAndContinueButton = await page.$(
+        'button[data-test="saveButton"]'
+      )
+      await saveAndContinueButton.click()
+    }
+    await page.waitForTimeout(6000)
+
+    await page.type('#creditCardInput-cardNumber', creditCardNumber)
+
+    const isCreditCardSaved = await page.$(
+      'button[data-test="verify-card-button"]'
+    )
+    if (!isCreditCardSaved) {
+      // expiration date format: MM/YY e.g. 08/24
+      await page.type(
+        '#creditCardInput-expiration',
+        `${expirationMonth}/${expirationYear.slice(2, 4)}`
+      )
+      await page.type('#creditCardInput-cvv', cvv)
+      await page.type('#creditCardInput-cardName', `${firstName} ${lastName}`)
+      const saveAndContinueButton = await page.$(
+        'button[data-test="save-and-continue-button"]'
+      )
+      await saveAndContinueButton.click()
+    } else {
+      await isCreditCardSaved.click()
+      await page.type('#creditCardInput-cvv', cvv)
+      await page.keyboard.press('Enter')
+    }
+
+    // await page.waitForTimeout(4000)
+    // const placeOrderButton = await page.$(
+    //   'button[data-test="placeOrderButton"]'
     // )
-    // editAndCheckout.click()
-
-    // await page.waitForTimeout(2000)
+    // await placeOrderButton.click()
   } catch (error) {
     console.log(error)
   } finally {

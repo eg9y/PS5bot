@@ -61,10 +61,11 @@ Configs are read in `config.json` file. You can either run `ps5bot` to generate 
 
 ### Credit Cards supported
 
-| Site               | Cards                      |
-|--------------------|----------------------------|
-| PlayStation Direct | MasterCard, Visa, Discover |
-|                    |                            |
+| Site               | Cards                                        |
+|--------------------|----------------------------------------------|
+| PlayStation Direct | MasterCard, Visa, Discover                   |
+| Walmart            | MasterCard, Visa, Discover, American Express |
+| Target             | MasterCard, Visa, Discover, American Express |
 
 Make sure to run this script and keep the terminal open around the time of the schedule
 
@@ -72,6 +73,7 @@ Make sure to run this script and keep the terminal open around the time of the s
 
 - Make sure not to use a VPN since it will possibly trigger captcha verification.
 - There's a chance WalMart checkout ask for captcha after entering address. If this is the case, bot will pause. As soon as you complete them, bot will resume.
+- You need a login for Target. And make sure no existing carts.
 
 PS5bot exists to:
 

@@ -1,6 +1,5 @@
 import { GluegunToolbox } from 'gluegun'
-import * as puppeteer from 'puppeteer'
-import { PLAYSTATION_DIRECT, TARGET } from '../contants'
+import { PLAYSTATION_DIRECT, TARGET, WALMART } from '../contants'
 
 module.exports = {
   name: 'scrape',
@@ -14,22 +13,20 @@ module.exports = {
       type: 'multiselect',
       name: 'sitesToScrape',
       message: `Which sites do you want to scrape? (press space to select)`,
-      choices: [PLAYSTATION_DIRECT, TARGET]
+      choices: [PLAYSTATION_DIRECT, TARGET, WALMART]
     })
 
-    if (sitesToScrape.length === 0 && ) {
-      const browser = await puppeteer.launch({
-        headless: false,
-        args: ['--window-size=1920,1080'],
-        defaultViewport: null
-      })
+    if (sitesToScrape.length === 0) {
       await Promise.allSettled([
-        scrape(TARGET, browser),
-        scrape(PLAYSTATION_DIRECT, browser)
+        scrape(TARGET),
+        scrape(WALMART),
+        scrape(PLAYSTATION_DIRECT)
       ])
     } else {
-      if (sitesToScrape.length && sitesToScrape.includes(TARGET)) {
+      if (sitesToScrape.includes(TARGET)) {
         await scrape(TARGET)
+      } else if (sitesToScrape.includes(WALMART)) {
+        await scrape(WALMART)
       } else {
         await scrape(PLAYSTATION_DIRECT)
       }

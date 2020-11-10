@@ -1,9 +1,10 @@
 import * as puppeteer from 'puppeteer'
 
-export const scrape = async (
-  config: { [key: string]: string },
-  existingBrowser?: puppeteer.Browser | null
-) => {
+function timeout(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+export const scrapeDirect = async (config: { [key: string]: string }) => {
   const {
     email,
     phoneNumber,
@@ -19,23 +20,37 @@ export const scrape = async (
     cvv
   } = config
 
-  let browser
-  if (existingBrowser) {
-    browser = existingBrowser
-  } else {
-    browser = await puppeteer.launch({
-      headless: false,
-      args: ['--window-size=1920,1080'],
-      defaultViewport: null
-    })
-  }
+  const browser = await puppeteer.launch({
+    headless: false,
+    args: ['--window-size=1920,1080'],
+    defaultViewport: null
+  })
 
   try {
     const page = await browser.newPage()
     await page.goto(
       'https://direct.playstation.com/en-us/accessories/accessory/dualsense-wireless-controller.3005715'
     )
-    // await page.goto('https://direct.playstation.com/en-us/consoles/console/playstation5-console.3005816');
+    // await page.goto(
+    //   'https://direct.playstation.com/en-us/consoles/console/playstation5-console.3005816'
+    // )
+
+    while (true) {
+      try {
+        const button = await page.evaluate(() => {
+          const btn = document.querySelector('button[aria-label="Add to Cart"]')
+          return getComputedStyle(btn).display
+        })
+
+        if (button && (button === 'none' || button === '')) {
+          await timeout(10000)
+          throw new Error()
+        }
+        break
+      } catch (error) {
+        await page.reload()
+      }
+    }
 
     const productHero = await page.$('.productHero-desc')
     const shipItButton = await productHero.$('button[aria-label="Add to Cart"]')
@@ -71,7 +86,7 @@ export const scrape = async (
     await page.type('#lastName', lastName)
     await page.$eval(
       'input[name="subscribeAcceptance"]',
-      check => (check.checked = false)
+      check => ((check as any).checked = false)
     )
 
     // // street address

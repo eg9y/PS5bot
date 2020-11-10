@@ -1,9 +1,6 @@
 import * as puppeteer from 'puppeteer'
 
-export const scrapeTarget = async (
-  config: { [key: string]: string },
-  existingBrowser?: puppeteer.Browser | null
-) => {
+export const scrapeTarget = async (config: { [key: string]: string }) => {
   const {
     phoneNumber,
     firstName,
@@ -26,16 +23,11 @@ export const scrapeTarget = async (
     )
   }
 
-  let browser
-  if (existingBrowser) {
-    browser = existingBrowser
-  } else {
-    browser = await puppeteer.launch({
-      headless: false,
-      args: ['--window-size=1920,1080'],
-      defaultViewport: null
-    })
-  }
+  const browser = await puppeteer.launch({
+    headless: false,
+    args: ['--window-size=1920,1080'],
+    defaultViewport: null
+  })
 
   try {
     const page = await browser.newPage()
@@ -49,30 +41,13 @@ export const scrapeTarget = async (
       }
     })
 
-    await page.goto(
-      'https://www.target.com/p/dualsense-wireless-controller-for-playstation-5/-/A-81114477'
-    )
-
-    await page.waitForTimeout(2000)
-    const shipItButton = await page.$('button[data-test="shipItButton"]')
-    await shipItButton.click()
-    await page.waitForTimeout(2000)
-
-    const noCoverageButton = await page.$(
-      'button[data-test="espModalContent-declineCoverageButton"]'
-    )
-    await noCoverageButton.click()
-
-    await page.waitForTimeout(2000)
-    const addToCartModalViewCartCheckout = await page.$(
-      'button[data-test="addToCartModalViewCartCheckout"]'
-    )
-    await addToCartModalViewCartCheckout.click()
+    await page.goto('https://www.target.com')
+    const accountDropdown = await page.$('#account')
+    await accountDropdown.click()
 
     await page.waitForTimeout(6000)
-    const checkoutButton = await page.$('button[data-test="checkout-button"]')
-    await checkoutButton.click()
-
+    const signInButton = await page.$('#accountNav-signIn')
+    await signInButton.click()
     await page.waitForTimeout(6000)
     await page.type('#username', targetEmail)
     await page.type('#password', targetPassword)
@@ -88,51 +63,101 @@ export const scrapeTarget = async (
       console.log("join request doesn't exists")
     }
 
-    // checkout page
-    const existingAddress = await page.$('div[data-test="address-0"]')
-    if (existingAddress) {
-      console.log('address exists')
-      await existingAddress.click()
-      const saveAndContinueButton = await page.$(
-        'button[data-test="save-and-continue-button"]'
-      )
-      await saveAndContinueButton.click()
-    } else {
-      console.log("address doesn't exists")
-      await page.type('#full_name', `${firstName} ${lastName}`)
-      await page.type('#address_line1', address)
-      await page.type('#zip_code', zipCode)
-      await page.type('#city', city)
-      await page.type('#mobile', phoneNumber)
-      await page.select('#state', state)
-      const saveAndContinueButton = await page.$(
-        'button[data-test="saveButton"]'
-      )
-      await saveAndContinueButton.click()
+    await page.goto(
+      'https://www.target.com/p/dualsense-wireless-controller-for-playstation-5/-/A-81114477'
+    )
+
+    await page.waitForTimeout(4000)
+
+    while (true) {
+      try {
+        await page.waitForSelector('button[data-test="shipItButton"]', {
+          timeout: 10000
+        })
+        break
+      } catch (error) {
+        await page.reload()
+      }
     }
+
+    const shipItButton = await page.$('button[data-test="shipItButton"]')
+    await shipItButton.click()
+    await page.waitForTimeout(4000)
+
+    const noCoverageButton = await page.$(
+      'button[data-test="espModalContent-declineCoverageButton"]'
+    )
+    await noCoverageButton.click()
+
+    await page.waitForTimeout(4000)
+    const addToCartModalViewCartCheckout = await page.$(
+      'button[data-test="addToCartModalViewCartCheckout"]'
+    )
+    await addToCartModalViewCartCheckout.click()
+
     await page.waitForTimeout(6000)
+    const checkoutButton = await page.$('button[data-test="checkout-button"]')
+    await checkoutButton.click()
 
-    await page.type('#creditCardInput-cardNumber', creditCardNumber)
-
-    const isCreditCardSaved = await page.$(
+    await page.waitForTimeout(6000)
+    const isCreditCardSavedAttemptOne = await page.$(
       'button[data-test="verify-card-button"]'
     )
-    if (!isCreditCardSaved) {
+    if (isCreditCardSavedAttemptOne) {
+      console.log('coco in the loco')
+      await page.type('#creditCardInput-cardNumber', creditCardNumber)
       // expiration date format: MM/YY e.g. 08/24
-      await page.type(
-        '#creditCardInput-expiration',
-        `${expirationMonth}/${expirationYear.slice(2, 4)}`
-      )
-      await page.type('#creditCardInput-cvv', cvv)
-      await page.type('#creditCardInput-cardName', `${firstName} ${lastName}`)
-      const saveAndContinueButton = await page.$(
-        'button[data-test="save-and-continue-button"]'
-      )
-      await saveAndContinueButton.click()
-    } else {
-      await isCreditCardSaved.click()
+      await isCreditCardSavedAttemptOne.click()
+      await page.waitForTimeout(6000)
       await page.type('#creditCardInput-cvv', cvv)
       await page.keyboard.press('Enter')
+    } else {
+      // checkout page
+      const existingAddress = await page.$('div[data-test="address-0"]')
+      if (existingAddress) {
+        console.log('address exists')
+        await existingAddress.click()
+        const saveAndContinueButton = await page.$(
+          'button[data-test="save-and-continue-button"]'
+        )
+        await saveAndContinueButton.click()
+      } else {
+        console.log("address doesn't exists")
+        await page.type('#full_name', `${firstName} ${lastName}`)
+        await page.type('#address_line1', address)
+        await page.type('#zip_code', zipCode)
+        await page.type('#city', city)
+        await page.type('#mobile', phoneNumber)
+        await page.select('#state', state)
+        const saveAndContinueButton = await page.$(
+          'button[data-test="saveButton"]'
+        )
+        await saveAndContinueButton.click()
+      }
+      await page.waitForTimeout(6000)
+      await page.type('#creditCardInput-cardNumber', creditCardNumber)
+
+      const isCreditCardSaved = await page.$(
+        'button[data-test="verify-card-button"]'
+      )
+      if (!isCreditCardSaved) {
+        // expiration date format: MM/YY e.g. 08/24
+        await page.type(
+          '#creditCardInput-expiration',
+          `${expirationMonth}/${expirationYear.slice(2, 4)}`
+        )
+        await page.type('#creditCardInput-cvv', cvv)
+        await page.type('#creditCardInput-cardName', `${firstName} ${lastName}`)
+        const saveAndContinueButton = await page.$(
+          'button[data-test="save-and-continue-button"]'
+        )
+        await saveAndContinueButton.click()
+      } else {
+        await isCreditCardSaved.click()
+        await page.waitForTimeout(6000)
+        await page.type('#creditCardInput-cvv', cvv)
+        await page.keyboard.press('Enter')
+      }
     }
 
     // await page.waitForTimeout(4000)

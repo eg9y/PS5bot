@@ -2,6 +2,8 @@
 
 ps5bot is a dead simple auto-checkout bot to buy a PlayStation 5 from PlayStation Direct or Target (planned: Gamestop, BestBuy).
 
+![prestine image of naked man punching tank go boom](https://media.giphy.com/media/ECpTuaJw4kRq0/giphy.gif)
+
 ## Installation overview
 
 Linux, macOS, and Windows are all capable operating systems.
@@ -55,6 +57,7 @@ Configs are read in `config.json` file. You can either run `ps5bot` to generate 
 
 - Double quotes on text is required
 - Anything after the `//` are comments for clarification. Remove them if you try to copy paste this example (including the `//`).
+- for Target, make sure you have no carts in your account already
 
 ### Credit Cards supported
 
@@ -65,7 +68,10 @@ Configs are read in `config.json` file. You can either run `ps5bot` to generate 
 
 Make sure to run this script and keep the terminal open around the time of the schedule
 
-## Note
+## Notes
+
+- Make sure not to use a VPN since it will possibly trigger captcha verification.
+- There's a chance WalMart checkout ask for captcha after entering address. If this is the case, bot will pause. As soon as you complete them, bot will resume.
 
 PS5bot exists to:
 

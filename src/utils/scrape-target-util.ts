@@ -1,4 +1,5 @@
 import * as puppeteer from 'puppeteer'
+import * as notifier from 'node-notifier'
 
 export const scrapeTarget = async (config: { [key: string]: string }) => {
   const {
@@ -64,8 +65,11 @@ export const scrapeTarget = async (config: { [key: string]: string }) => {
     }
 
     await page.goto(
-      'https://www.target.com/p/dualsense-wireless-controller-for-playstation-5/-/A-81114477'
+      'https://www.target.com/p/playstation-5-digital-edition-console/-/A-81114596'
     )
+    // await page.goto(
+    //   'https://www.target.com/p/dualsense-wireless-controller-for-playstation-5/-/A-81114477'
+    // )
 
     await page.waitForTimeout(4000)
 
@@ -104,7 +108,6 @@ export const scrapeTarget = async (config: { [key: string]: string }) => {
       'button[data-test="verify-card-button"]'
     )
     if (isCreditCardSavedAttemptOne) {
-      console.log('coco in the loco')
       await page.type('#creditCardInput-cardNumber', creditCardNumber)
       // expiration date format: MM/YY e.g. 08/24
       await isCreditCardSavedAttemptOne.click()
@@ -159,6 +162,12 @@ export const scrapeTarget = async (config: { [key: string]: string }) => {
         await page.keyboard.press('Enter')
       }
     }
+
+    notifier.notify({
+      title: 'Target',
+      message: 'Ready to place order!',
+      sound: true
+    })
 
     // await page.waitForTimeout(4000)
     // const placeOrderButton = await page.$(

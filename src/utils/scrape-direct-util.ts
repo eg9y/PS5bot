@@ -1,7 +1,41 @@
 import * as puppeteer from 'puppeteer'
+import * as notifier from 'node-notifier'
 
 function timeout(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+const waitTillSelectorAppears = async (
+  page,
+  selector: string,
+  delay: number = 10000,
+  isReload: boolean = true
+) => {
+  while (true) {
+    try {
+      const button = await page.evaluate(currSelector => {
+        const btn = document.querySelector(currSelector)
+
+        if (!btn) {
+          throw new Error(`btn is null ${currSelector}`)
+        }
+
+        return getComputedStyle(btn).display
+      }, selector)
+
+      if (button && (button === 'none' || button === '')) {
+        await timeout(delay)
+        throw new Error(button)
+      }
+      break
+    } catch (error) {
+      if (isReload) {
+        await page.reload()
+      } else {
+        console.log(error)
+      }
+    }
+  }
 }
 
 export const scrapeDirect = async (config: { [key: string]: string }) => {
@@ -28,29 +62,18 @@ export const scrapeDirect = async (config: { [key: string]: string }) => {
 
   try {
     const page = await browser.newPage()
-    await page.goto(
-      'https://direct.playstation.com/en-us/accessories/accessory/dualsense-wireless-controller.3005715'
-    )
     // await page.goto(
-    //   'https://direct.playstation.com/en-us/consoles/console/playstation5-console.3005816'
+    //   'https://direct.playstation.com/en-us/accessories/accessory/dualsense-wireless-controller.3005715'
     // )
+    await page.goto(
+      'https://direct.playstation.com/en-us/consoles/console/playstation5-console.3005816'
+    )
 
-    while (true) {
-      try {
-        const button = await page.evaluate(() => {
-          const btn = document.querySelector('button[aria-label="Add to Cart"]')
-          return getComputedStyle(btn).display
-        })
-
-        if (button && (button === 'none' || button === '')) {
-          await timeout(10000)
-          throw new Error()
-        }
-        break
-      } catch (error) {
-        await page.reload()
-      }
-    }
+    await waitTillSelectorAppears(
+      page,
+      'button[aria-label="Add to Cart"]',
+      10000
+    )
 
     const productHero = await page.$('.productHero-desc')
     const shipItButton = await productHero.$('button[aria-label="Add to Cart"]')
@@ -62,24 +85,25 @@ export const scrapeDirect = async (config: { [key: string]: string }) => {
     )
     await editAndCheckout.click()
 
-    await page.waitForTimeout(2000)
-
-    await page.type('#monthInput', '01')
-    await page.type('#dateInput', '01')
-    await page.type('#yearInput', '1998')
-
-    await page.waitForTimeout(2000)
+    await page.waitForSelector('#monthInput', {
+      timeout: 10000
+    })
+    await page.$eval('#monthInput', check => ((check as any).value = '01'))
+    await page.$eval('#dateInput', check => ((check as any).value = '01'))
+    await page.$eval('#yearInput', check => ((check as any).value = '1998'))
+    await page.waitForTimeout(3000)
     const [verifyAgeButton] = await page.$x("//button[contains(., 'Verify')]")
     await verifyAgeButton.click()
 
-    await page.waitForTimeout(2000)
-
+    await page.waitForTimeout(3000)
     const [nextFromCartToShipping] = await page.$x(
       "//button[contains(., 'Next')]"
     )
     await nextFromCartToShipping.click()
 
-    await page.waitForTimeout(2000)
+    await page.waitForSelector('input[name="email"]', {
+      timeout: 10000
+    })
     await page.type('input[name="email"]', email)
     await page.type('#guestUserPhoneNo', phoneNumber)
     await page.type('#firstName', firstName)
@@ -105,12 +129,10 @@ export const scrapeDirect = async (config: { [key: string]: string }) => {
         '#stateDropdown'
       ) as any).value = stateArg)
     }, state)
-    await page.waitForTimeout(4000)
     const shippingToCheckout = await page.$(
       '.order-summary-container__cta>.checkout-cta>.checkout-cta__next'
     )
     await shippingToCheckout.click()
-
     await page.waitForTimeout(6000)
     page.frames().find(async frame => {
       await frame.type('input[name="expiryMonth"]', expirationMonth)
@@ -128,6 +150,12 @@ export const scrapeDirect = async (config: { [key: string]: string }) => {
       '.order-summary-container__cta>.checkout-cta>.checkout-cta__review-order-total'
     )
     await checkOutToReview.click()
+
+    notifier.notify({
+      title: 'PlayStation Direct',
+      message: 'Ready to place order!',
+      sound: true
+    })
 
     // // Place Order
     // const LETS_GOGOGO = await page.$(

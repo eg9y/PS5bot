@@ -1,4 +1,5 @@
 import * as puppeteer from 'puppeteer'
+import * as notifier from 'node-notifier'
 
 export const scrapeWalmart = async (config: { [key: string]: string }) => {
   const {
@@ -115,6 +116,12 @@ export const scrapeWalmart = async (config: { [key: string]: string }) => {
     await page.select('select[name="year-chooser"]', expirationYear)
 
     await page.keyboard.press('Enter')
+
+    notifier.notify({
+      title: 'Walmart',
+      message: 'Ready to place order!',
+      sound: true
+    })
   } catch (error) {
     console.log(error)
   } finally {

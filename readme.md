@@ -1,6 +1,6 @@
 # PS5bot
 
-ps5bot is a dead simple auto-checkout bot to buy a PlayStation 5 from PlayStation Direct or Target (planned: Gamestop, BestBuy).
+ps5bot is a dead simple auto-checkout bot to buy a PlayStation 5 from PlayStation Direct, Target, and Walmart (planned: Gamestop, BestBuy).
 
 ![prestine image of naked man punching tank go boom](https://media.giphy.com/media/ECpTuaJw4kRq0/giphy.gif)
 
@@ -19,8 +19,9 @@ You do not need any computer skills, smarts, or anything of that nature. You are
     1. `git clone https://github.com/VVNoodle/PS5bot`
  4. Open up a terminal
  5. go to project directory `cd /the/project/directory`
- 6. Install dependencies by running `npm install`
- 7. Make CLI callable  
+ 6. Install `yarn` by running `npm i -g yarn`
+ 7. Install dependencies by running `yarn`
+ 8. Make CLI callable  
     `yarn link`  
 
 ## Setup

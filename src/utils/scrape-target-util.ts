@@ -33,6 +33,7 @@ export const scrapeTarget = async (config: { [key: string]: string }) => {
   try {
     const page = await browser.newPage()
     await page.setRequestInterception(true)
+    await page.setDefaultNavigationTimeout(0);
 
     page.on('request', async req => {
       if (req.resourceType() === 'image') {

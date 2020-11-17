@@ -1,5 +1,5 @@
 import { GluegunToolbox } from 'gluegun'
-import { PLAYSTATION_DIRECT, TARGET, WALMART } from '../contants'
+import { PLAYSTATION_DIRECT, TARGET, WALMART, TARGET_DIGITAL } from '../contants'
 
 module.exports = {
   name: 'scrape',
@@ -23,7 +23,9 @@ module.exports = {
         scrape(PLAYSTATION_DIRECT)
       ])
     } else {
-      if (sitesToScrape.includes(TARGET)) {
+      if (sitesToScrape.includes(TARGET_DIGITAL)) {
+        await scrape(TARGET_DIGITAL)
+      } else if (sitesToScrape.includes(TARGET)) {
         await scrape(TARGET)
       } else if (sitesToScrape.includes(WALMART)) {
         await scrape(WALMART)

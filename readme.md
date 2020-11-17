@@ -23,14 +23,15 @@ You do not need any computer skills, smarts, or anything of that nature. You are
  7. Install dependencies by running `yarn`
  8. Make CLI callable  
     `yarn link`  
+ 9. go to project directory `cd /the/project/directory/bin`
 
 ## Setup
 
  1. Run ps5bot. You'll be prompted to fill in required checkout info  
-    `ps5bot`  
+    `node ps5bot`  
     **Note: Below steps are still TODO**  
  2. Run scraper
-    `ps5bot scrape`
+    `node ps5bot scrape`
     - you will be asked to select the sites to run the bot. If you don't select anything, it will try to run on all websites.
 
 ## Bot Configs

@@ -1,7 +1,7 @@
 import * as puppeteer from 'puppeteer'
 import * as notifier from 'node-notifier'
 
-export const scrapeTarget = async (config: { [key: string]: string }) => {
+export const scrapeTargetDigi = async (config: { [key: string]: string }) => {
   const {
     phoneNumber,
     firstName,
@@ -66,7 +66,7 @@ export const scrapeTarget = async (config: { [key: string]: string }) => {
     }
 
     await page.goto(
-      'https://www.target.com/p/playstation-5-console/-/A-81114595'
+      'https://www.target.com/p/playstation-5-digital-edition-console/-/A-81114596'
     )
     // await page.goto(
     //   'https://www.target.com/p/dualsense-wireless-controller-for-playstation-5/-/A-81114477'

@@ -5,15 +5,16 @@ import { TARGET, WALMART } from '../contants'
 import { scrapeTarget } from '../utils/scrape-target-util'
 import { scrapeDirect } from '../utils/scrape-direct-util'
 import { scrapeWalmart } from '../utils/scrape-walmart-util'
-
+import { scrapeTargetDigi } from '../utils/scrape-targetdigi-util'
 module.exports = (toolbox: GluegunToolbox) => {
   toolbox.scrape = async (site: string) => {
     const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'))
     const cronJobSchedule = config.cronSchedule
 
     let scraperToRun = scrapeDirect
-
-    if (site === TARGET) {
+if (site === TARGET_DIGITAL) {
+      scraperToRun = scrapeTargetDigi
+    } else if (site === TARGET) {
       scraperToRun = scrapeTarget
     } else if (site === WALMART) {
       scraperToRun = scrapeWalmart

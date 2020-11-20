@@ -1,6 +1,6 @@
 # PS5bot
 
-## ⚠️ this project is not maintained anymore 
+## ⚠️ this project is not maintained anymore
 
 Sorry yall, but I have other things to do 😿. Plus there are situations I've no clue how to solve such as traffic spikes and captchas, and situations that are basically impossible to bypass (e.g. loading queues for PlayStation Direct). For these reasons, I'm archiving this project. Hey, at least we don't need to worry about all this for Cyberpunk!
 
@@ -56,7 +56,7 @@ Configs are read in `config.json` file. You can either run `ps5bot` to generate 
   "expirationYear": "2022",
   "cvv": "000",
   "targetEmail": "email2@example.com",
-  "targetPassword": "eganz245"
+  "targetPassword": "1312321"
 }
 ```
 

@@ -1,5 +1,9 @@
 # PS5bot
 
+## ⚠️ this project is not maintained anymore 
+
+Sorry yall, but I have other things to do 😿. Plus there are situations I've no clue how to solve such as traffic spikes and captchas, and situations that are basically impossible to bypass (e.g. loading queues for PlayStation Direct). For these reasons, I'm archiving this project. Hey, at least we don't need to worry about all this for Cyberpunk!
+
 ps5bot is a dead simple auto-checkout bot to buy a PlayStation 5 from PlayStation Direct, Target, and Walmart (planned: Gamestop, BestBuy).
 
 ![prestine image of naked man punching tank go boom](https://media.giphy.com/media/ECpTuaJw4kRq0/giphy.gif)
@@ -39,20 +43,20 @@ Configs are read in `config.json` file. You can either run `ps5bot` to generate 
 
 ```js
 {
-   "firstName": "Qwer",
-   "lastName" "Ty",
-   "phoneNumber": "8011111111", //No spaces
-   "email": "email@example.com",
-   "state": "State",  //Fullname
-   "city": "Random City", //Fullname
-   "address": "2353 Running Water Ct.",
-   "zipCode": "95054",
-   "creditCardNumber": "0101101010101",
-   "expirationMonth": "10", //MM format
-   "expirationYear": "2022", //YYYY format
-   "cvv": "000",
-   "targetEmail": "email2@example.com",
-   "targetPassword": "eganz245"
+  "firstName": "Qwer",
+  "lastName": "Ty",
+  "phoneNumber": "8011111111",
+  "email": "email@example.com",
+  "state": "State",
+  "city": "Random City",
+  "address": "2353 Running Water Ct.",
+  "zipCode": "95054",
+  "creditCardNumber": "0101101010101",
+  "expirationMonth": "10",
+  "expirationYear": "2022",
+  "cvv": "000",
+  "targetEmail": "email2@example.com",
+  "targetPassword": "eganz245"
 }
 ```
 
